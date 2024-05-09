@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "dqn"
+version = "0.1.0"
+description = ""
+authors = ["dennis <dennisfeng2@gmail.com>"]
+license = "MIT License"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.7, <3.10"
+numpy = "^1.20.3"
+torch = "^1.8.1"
+gym = {extras = ["atari"], version = "^0.18.3"}
+tensorboard = "^2.5.0"
+torchvision = "^0.9.1"
+matplotlib = "^3.4.2"
+optuna = "^2.8.0"
+fastprogress = "^1.0.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.4"
+mock = "^4.0.3"
+mypy = "^0.910"
+pylint = "^2.8.3"
+black = "^21.6-beta.0"
+flake8 = "^3.9.2"
+isort = "^5.9.1"
+jupyterlab = "^3.0.16"
+pytype = "^2021.7.19"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
