@@ -7,10 +7,13 @@ import torch
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import rl_utils
-from Qattention import MLPAttention
+# from Qattention import MLPAttention
 from BeliefQNetwork import BeliefQNetwork
+
+
 class ReplayBuffer:
     ''' 经验回放池 '''
+
     def __init__(self, capacity):
         self.buffer = collections.deque(maxlen=capacity)  # 队列,先进先出
 
@@ -24,9 +27,11 @@ class ReplayBuffer:
 
     def size(self):  # 目前buffer中数据的数量
         return len(self.buffer)
-    
+
+
 class Qnet(torch.nn.Module):
     ''' 只有一层隐藏层的Q网络 '''
+
     def __init__(self, state_dim, hidden_dim, action_dim):
         super(Qnet, self).__init__()
         self.fc1 = torch.nn.Linear(state_dim, hidden_dim)
@@ -35,12 +40,28 @@ class Qnet(torch.nn.Module):
     def forward(self, x):
         x = F.relu(self.fc1(x))  # 隐藏层使用ReLU激活函数
         return self.fc2(x)
-    
+
+
 class DQN:
     ''' DQN算法 '''
+
     def __init__(self, state_dim, hidden_dim, action_dim, learning_rate, gamma,
                  epsilon, target_update, device):
+
         self.action_dim = action_dim
+        self.device = device
+        self.gamma = gamma
+        self.epsilon = epsilon
+        self.target_update = target_update
+        self.count = 0
+
+        # self.q_net = BeliefQNetwork(state_dim, action_dim, hidden_dim).to(device)
+        # self.target_q_net = BeliefQNetwork(state_dim, action_dim, hidden_dim).to(device)
+
+        # self.optimizer = torch.optim.Adam(self.q_net.parameters(), lr=learning_rate)
+
+        # self.action_dim = action_dim
+
         self.q_net = Qnet(state_dim, hidden_dim,
                           self.action_dim).to(device)  # Q网络
         # 目标网络
@@ -49,14 +70,16 @@ class DQN:
         # 使用Adam优化器
         self.optimizer = torch.optim.Adam(self.q_net.parameters(),
                                           lr=learning_rate)
-        self.gamma = gamma  # 折扣因子
-        self.epsilon = epsilon  # epsilon-贪婪策略
-        self.target_update = target_update  # 目标网络更新频率
-        self.count = 0  # 计数器,记录更新次数
-        self.device = device
-        self.qattention = MLPAttention(state_dim, action_dim).to(self.device)
+
+        # self.gamma = gamma  # 折扣因子
+        # self.epsilon = epsilon  # epsilon-贪婪策略
+        # self.target_update = target_update  # 目标网络更新频率
+        # self.count = 0  # 计数器,记录更新次数
+        # self.device = device
+
+        self.qattention = BeliefQNetwork(state_dim, action_dim).to(self.device)
         self.qoptim = torch.optim.Adam(self.qattention.parameters(),
-                                          lr=0.0005)
+                                       lr=0.0005)
 
     def take_action(self, state):  # epsilon-贪婪策略采取动作
         if np.random.random() < self.epsilon:
@@ -85,7 +108,7 @@ class DQN:
         #     -1, 1)
         # q_targets = rewards + self.gamma * max_next_q_values * (1 - dones
         #                                                         )  # TD误差目标
-        
+
         average_next_q_value = self.qattention(next_states, q_values)[1] * next_q_values
         q_targets = rewards + self.gamma * torch.sum(average_next_q_value) * (1 - dones)
         dqn_loss = torch.mean(F.mse_loss(q_values, q_targets))  # 均方误差损失函数
@@ -99,7 +122,8 @@ class DQN:
             self.target_q_net.load_state_dict(
                 self.q_net.state_dict())  # 更新目标网络
         self.count += 1
-        
+
+
 lr = 2e-3
 num_episodes = 500
 hidden_dim = 128
@@ -109,7 +133,7 @@ target_update = 10
 buffer_size = 10000
 minimal_size = 500
 batch_size = 64
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device(
+device = torch.device("mps") if torch.cuda.is_available() else torch.device(
     "cpu")
 
 env_name = 'CartPole-v0'
@@ -152,9 +176,9 @@ for i in range(2000):
             if (i_episode + 1) % 10 == 0:
                 pbar.set_postfix({
                     'episode':
-                    '%d' % (num_episodes / 10 * i + i_episode + 1),
+                        '%d' % (num_episodes / 10 * i + i_episode + 1),
                     'return':
-                    '%.3f' % np.mean(return_list[-10:])
+                        '%.3f' % np.mean(return_list[-10:])
                 })
             pbar.update(1)
 
@@ -162,12 +186,12 @@ episodes_list = list(range(len(return_list)))
 plt.plot(episodes_list, return_list)
 plt.xlabel('Episodes')
 plt.ylabel('Returns')
-plt.title('Smoothed DQN on {}'.format(env_name))
+plt.title('Belief DQN on {}'.format(env_name))
 plt.show()
 
 mv_return = rl_utils.moving_average(return_list, 9)
 plt.plot(episodes_list, mv_return)
 plt.xlabel('Episodes')
 plt.ylabel('Returns')
-plt.title('Smoothed DQN on {}'.format(env_name))
+plt.title('Belief DQN on {}'.format(env_name))
 plt.show()

@@ -214,7 +214,7 @@ def smoothed_Q_learning_with_Cognitive_model(env, num_episodes, max_steps, mu_pr
     return average_rewards, max_action_values
 
 
-num_experiments = 1000
+num_experiments = 2000
 num_episodes = 10000
 max_steps = 5
 
@@ -303,10 +303,10 @@ fig, axs = plt.subplots(2, figsize=(12, 16))
 
 axs[0].plot(Q_rewards, label="Q-learning")
 axs[0].plot(double_Q_rewards, label="Double Q-learning")
-axs[0].plot(smoothed_Q_softmax_rewards, label="Smoothed Q-learning (Softmax)")
-axs[0].plot(smoothed_Q_clipped_max_rewards, label="Smoothed Q-learning (Clipped Max)")
-axs[0].plot(smoothed_Q_clipped_softmax_rewards, label="Smoothed Q-learning (Clipped SoftMax)")
-axs[0].plot(smoothed_Q_congitive_model_rewards, label="Smoothed Q-learning (Bayes Inference)")
+axs[0].plot(smoothed_Q_softmax_rewards, label="Belief Q-learning (Softmax)")
+axs[0].plot(smoothed_Q_clipped_max_rewards, label="Belief Q-learning (Clipped Max)")
+axs[0].plot(smoothed_Q_clipped_softmax_rewards, label="Belief Q-learning (Clipped SoftMax)")
+axs[0].plot(smoothed_Q_congitive_model_rewards, label="Belief Q-learning (Bayes Inference)")
 axs[0].set_xlabel("Steps")
 axs[0].set_ylabel("Average Reward")
 axs[0].legend()
@@ -315,10 +315,10 @@ axs[0].grid(True)
 
 axs[1].plot(Q_max_action_values, label="Q-learning")
 axs[1].plot(double_Q_max_action_values, label="Double Q-learning")
-axs[1].plot(smoothed_Q_softmax_max_action_values, label="Smoothed Q-learning (Softmax)")
-axs[1].plot(smoothed_Q_clipped_max_max_action_values, label="Smoothed Q-learning (Clipped Max)")
-axs[1].plot(smoothed_Q_clipped_max_max_action_values, label="Smoothed Q-learning (Clipped Max)")
-axs[1].plot(smoothed_Q_congitive_model_max_action_values, label="Smoothed Q-learning (Bayes Congitive Model)")
+axs[1].plot(smoothed_Q_softmax_max_action_values, label="Belief Q-learning (Softmax)")
+axs[1].plot(smoothed_Q_clipped_max_max_action_values, label="Belief Q-learning (Clipped Max)")
+axs[1].plot(smoothed_Q_clipped_max_max_action_values, label="Belief Q-learning (Clipped Max)")
+axs[1].plot(smoothed_Q_congitive_model_max_action_values, label="Belief Q-learning (Bayes Congitive Model)")
 axs[1].set_xlabel("Steps")
 axs[1].set_ylabel("Max Action Value at Start State")
 axs[1].legend()
